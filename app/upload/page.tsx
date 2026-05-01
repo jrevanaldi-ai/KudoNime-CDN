@@ -18,23 +18,22 @@ export default function UploadPage() {
 
     // @ts-ignore
     if (!window.cloudinary) {
-      alert("Cloudinary widget belum siap, tunggu bentar bos!");
+      alert("Cloudinary widget belum siap!");
       return;
     }
+
+    setIsUploading(true);
 
     // @ts-ignore
     const widget = window.cloudinary.createUploadWidget(
       {
         cloudName: "djpelfrer",
-        uploadPreset: "kudonime_manual", // Anda perlu buat preset ini di Cloudinary
+        uploadPreset: "kudonime_manual",
         folder: `kudonime/episodes/${animeSlug}`,
         resourceType: "video",
       },
       async (error: any, result: any) => {
         if (!error && result && result.event === "success") {
-          console.log("Done! Here is the image info: ", result.info);
-          
-          // Simpan ke database kita
           const res = await fetch("/api/save", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -47,55 +46,71 @@ export default function UploadPage() {
           });
 
           if (res.ok) {
-            alert("Upload Berhasil dan sudah masuk DB!");
+            alert("Upload Berhasil!");
+            setEpisodeSlug("");
             router.refresh();
+          } else {
+            alert("Gagal simpan ke DB bos!");
           }
         }
+        setIsUploading(false);
       }
     );
     widget.open();
   };
 
   return (
-    <div className="min-h-screen bg-orange-50 p-8 font-sans">
+    <div className="min-h-screen bg-[#fff7ed] p-4 md:p-8 font-sans text-black">
       <Script src="https://upload-widget.cloudinary.com/global/all.js" strategy="beforeInteractive" />
-      <div className="max-w-md mx-auto bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 rounded-none">
-        <h1 className="text-3xl font-black mb-6 uppercase tracking-tighter">CDN Upload Center</h1>
-        
-        <div className="space-y-4">
-          <div>
-            <label className="block font-bold mb-1">Anime Slug</label>
-            <input 
-              type="text" 
-              value={animeSlug}
-              onChange={(e) => setAnimeSlug(e.target.value)}
-              placeholder="contoh: solo-leveling"
-              className="w-full border-2 border-black p-2 font-bold focus:bg-yellow-100 outline-none"
-            />
+      
+      <div className="max-w-xl mx-auto mt-10">
+        <div className="bg-white border-[4px] border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 md:p-10">
+          <h1 className="text-4xl font-black mb-8 uppercase tracking-tighter italic">
+            CDN <span className="text-orange-600">Upload</span> Center
+          </h1>
+          
+          <div className="space-y-6">
+            <div>
+              <label className="block text-lg font-black mb-2 uppercase">Anime Slug</label>
+              <input 
+                type="text" 
+                value={animeSlug}
+                onChange={(e) => setAnimeSlug(e.target.value)}
+                placeholder="contoh: solo-leveling"
+                className="w-full border-[3px] border-black p-3 font-bold focus:bg-orange-50 outline-none transition-colors"
+              />
+            </div>
+
+            <div>
+              <label className="block text-lg font-black mb-2 uppercase">Episode Slug</label>
+              <input 
+                type="text" 
+                value={episodeSlug}
+                onChange={(e) => setEpisodeSlug(e.target.value)}
+                placeholder="contoh: solo-leveling-episode-1"
+                className="w-full border-[3px] border-black p-3 font-bold focus:bg-orange-50 outline-none transition-colors"
+              />
+            </div>
+
+            <button 
+              onClick={handleUpload}
+              disabled={isUploading}
+              className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-gray-400 text-white font-black py-5 border-[4px] border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all uppercase text-xl"
+            >
+              {isUploading ? "SEDANG PROSES..." : "UPLOAD KE CLOUDINARY"}
+            </button>
           </div>
 
-          <div>
-            <label className="block font-bold mb-1">Episode Slug</label>
-            <input 
-              type="text" 
-              value={episodeSlug}
-              onChange={(e) => setEpisodeSlug(e.target.value)}
-              placeholder="contoh: solo-leveling-episode-1"
-              className="w-full border-2 border-black p-2 font-bold focus:bg-yellow-100 outline-none"
-            />
+          <div className="mt-10 p-4 bg-yellow-100 border-[3px] border-black">
+            <p className="text-sm font-bold leading-tight">
+              ⚠️ INFO PENTING: <br/>
+              Pastikan Cloudinary Upload Preset <code className="bg-white px-1">kudonime_manual</code> sudah di-set ke <span className="text-orange-700">HLS (.m3u8)</span> biar player-nya jalan!
+            </p>
           </div>
-
-          <button 
-            onClick={handleUpload}
-            disabled={isUploading}
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-black py-4 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all uppercase"
-          >
-            {isUploading ? "MEMPROSES..." : "UPLOAD MP4 KE CDN"}
-          </button>
         </div>
-
-        <p className="mt-6 text-xs font-bold text-gray-500 italic">
-          *Pastikan Anda sudah login ke Cloudinary dan membuat Upload Preset 'kudonime_manual' dengan Eager Transformation ke HLS (.m3u8)
+        
+        <p className="text-center mt-8 font-black uppercase text-sm tracking-widest opacity-50">
+          KudoNime Digital Infrastructure © 2026
         </p>
       </div>
     </div>
