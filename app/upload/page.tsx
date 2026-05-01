@@ -90,6 +90,16 @@ export default function UploadPage() {
           *Pastikan Anda sudah login ke Cloudinary dan membuat Upload Preset 'kudonime_manual' dengan Eager Transformation ke HLS (.m3u8)
         </p>
       </div>
+    </div>
+  );
+}
+
+        </div>
+
+        <p className="mt-6 text-xs font-bold text-gray-500 italic">
+          *Pastikan Anda sudah login ke Cloudinary dan membuat Upload Preset 'kudonime_manual' dengan Eager Transformation ke HLS (.m3u8)
+        </p>
+      </div>
       
       {/* Script Cloudinary Widget */}
       <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
