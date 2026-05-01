@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Script from "next/script";
 
 export default function UploadPage() {
   const [animeSlug, setAnimeSlug] = useState("");
@@ -12,6 +13,12 @@ export default function UploadPage() {
   const handleUpload = () => {
     if (!animeSlug || !episodeSlug) {
       alert("Isi dulu slug anime dan episodenya bos!");
+      return;
+    }
+
+    // @ts-ignore
+    if (!window.cloudinary) {
+      alert("Cloudinary widget belum siap, tunggu bentar bos!");
       return;
     }
 
@@ -28,7 +35,7 @@ export default function UploadPage() {
           console.log("Done! Here is the image info: ", result.info);
           
           // Simpan ke database kita
-          const res = await fetch("/api/cdn/save", {
+          const res = await fetch("/api/save", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -51,6 +58,7 @@ export default function UploadPage() {
 
   return (
     <div className="min-h-screen bg-orange-50 p-8 font-sans">
+      <Script src="https://upload-widget.cloudinary.com/global/all.js" strategy="beforeInteractive" />
       <div className="max-w-md mx-auto bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 rounded-none">
         <h1 className="text-3xl font-black mb-6 uppercase tracking-tighter">CDN Upload Center</h1>
         
@@ -90,19 +98,6 @@ export default function UploadPage() {
           *Pastikan Anda sudah login ke Cloudinary dan membuat Upload Preset 'kudonime_manual' dengan Eager Transformation ke HLS (.m3u8)
         </p>
       </div>
-    </div>
-  );
-}
-
-        </div>
-
-        <p className="mt-6 text-xs font-bold text-gray-500 italic">
-          *Pastikan Anda sudah login ke Cloudinary dan membuat Upload Preset 'kudonime_manual' dengan Eager Transformation ke HLS (.m3u8)
-        </p>
-      </div>
-      
-      {/* Script Cloudinary Widget */}
-      <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
     </div>
   );
 }
